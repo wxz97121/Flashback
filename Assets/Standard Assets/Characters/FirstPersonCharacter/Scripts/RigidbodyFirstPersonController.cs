@@ -117,7 +117,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
         }
 
-
         private void Start()
         {
             m_RigidBody = GetComponent<Rigidbody>();

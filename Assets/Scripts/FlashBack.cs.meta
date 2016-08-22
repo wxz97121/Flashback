@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 01165a389fe753b4d9debde1df34f51c
+timeCreated: 1471878344
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - markPrefab: {fileID: 100010, guid: 1916f5208820a5c4fa7d42b174f30c70, type: 2}
+  - markInGame: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
