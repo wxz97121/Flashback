@@ -7,18 +7,25 @@ public class FlashBack : MonoBehaviour {
     public GameObject markPrefab;
     public GameObject markInGame;
     public GameObject holding;
-    public bool isflashing = false;
-    public float speed=0.1f;
+    public static bool isflashing = false;
+    public float speed=30.0f;
+    private float realSpeed;
+    public float tolerance = 0.01f;
 
     private Rigidbody rigid;
-    private CharacterController controller;
-    private Vector3 moveVector;
+    //private CharacterController controller;
     private Vector3 oriVelocity;
+    private Vector3 velocity = Vector3.zero;
+    private Vector3 oriRot;
+
+    private float curSpeed;
+    private float oriSpeed;
+
 	// Use this for initialization
-	void Start () {
+    void Start()
+    {
         rigid = GetComponent<Rigidbody>();
-        controller = GetComponent<CharacterController>();
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -30,16 +37,19 @@ public class FlashBack : MonoBehaviour {
                 {
                     Destroy(markInGame);
                 }
-                markInGame=Instantiate(markPrefab, transform.position, transform.rotation) as GameObject;
+                markInGame=Instantiate(markPrefab, transform.position, Camera.main.transform.rotation) as GameObject;
             }
             else if (Input.GetMouseButtonDown(1)&&markInGame!=null)
             {
                 isflashing = true;
-                GetComponent<FirstPersonController>().enabled=false;
-                gameObject.layer = LayerMask.NameToLayer("GraySpace");
-                moveVector = markInGame.transform.position-transform.position;
-                oriVelocity = rigid.velocity;
+                oriSpeed = rigid.velocity.magnitude;
                 rigid.velocity = Vector3.zero;
+                GetComponent<RigidbodyFirstPersonController>().enabled=false;
+                GetComponent<CameraControl>().enabled = true;
+                rigid.useGravity = false;
+                realSpeed = (markInGame.transform.position - transform.position).magnitude / speed;
+                Debug.Log(realSpeed);
+                gameObject.layer = LayerMask.NameToLayer("GraySpace");
                 if (holding != null)
                 {
                     holding.GetComponent<Rigidbody>().isKinematic = false;
@@ -48,8 +58,8 @@ public class FlashBack : MonoBehaviour {
         }
         else
         {
-            controller.Move(moveVector * speed);
-            if (transform.position == markInGame.transform.position)
+            rigid.MovePosition(Vector3.MoveTowards(transform.position, markInGame.transform.position,realSpeed));
+            if ((transform.position -markInGame.transform.position).magnitude<tolerance)
             {
                 EndFlash();
             }
@@ -65,13 +75,19 @@ public class FlashBack : MonoBehaviour {
 
     }
 
+    void OnCollisionEnter() {
+        rigid.velocity = Vector3.zero;
+    }
+
     void EndFlash()
     {
         gameObject.layer = LayerMask.NameToLayer("Default");
         isflashing = false;
-        GetComponent<FirstPersonController>().enabled = true;
+        GetComponent<RigidbodyFirstPersonController>().enabled = true;
+        GetComponent<CameraControl>().enabled = false;
+        rigid.velocity =markInGame.transform.forward*oriSpeed;
         Destroy(markInGame);
-        rigid.velocity = oriVelocity;
+        rigid.useGravity=true;
         if (holding != null) {
             holding.GetComponent<Rigidbody>().isKinematic = true;
         }
