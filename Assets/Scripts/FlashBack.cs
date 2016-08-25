@@ -17,6 +17,7 @@ public class FlashBack : MonoBehaviour {
     private Vector3 oriVelocity;
     private Vector3 velocity = Vector3.zero;
     private Vector3 oriRot;
+    private Quaternion reAngle;
 
     private float curSpeed;
     private float oriSpeed;
@@ -43,6 +44,7 @@ public class FlashBack : MonoBehaviour {
             {
                 isflashing = true;
                 oriSpeed = rigid.velocity.magnitude;
+                reAngle = Quaternion.FromToRotation(Camera.main.transform.forward,rigid.velocity);
                 rigid.velocity = Vector3.zero;
                 GetComponent<RigidbodyFirstPersonController>().enabled=false;
                 GetComponent<CameraControl>().enabled = true;
@@ -85,6 +87,7 @@ public class FlashBack : MonoBehaviour {
         isflashing = false;
         GetComponent<RigidbodyFirstPersonController>().enabled = true;
         GetComponent<CameraControl>().enabled = false;
+        markInGame.transform.Rotate(reAngle.eulerAngles);
         rigid.velocity =markInGame.transform.forward*oriSpeed;
         Destroy(markInGame);
         rigid.useGravity=true;
